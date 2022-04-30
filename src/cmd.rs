@@ -1,5 +1,6 @@
 use crate::build;
-use async_std::{fs, path::Path, prelude::*};
+use async_std::path::PathBuf;
+use async_std::{fs, path::Path, prelude::*, future::Future};
 use std::env;
 
 // pub fn init() -> Result<(), String> {
@@ -27,42 +28,49 @@ pub fn version() {
 /// `build()` generates inert static files in CONFIG:default_dir
 ///
 /// *standard default dir is* `_site`
-pub async fn build() -> std::io::Result<()> {
-    let current_dir = match env::current_dir() {
-        Ok(dir) => dir,
+pub async fn build(target: Option<&str>) -> Box<dyn Future<Output = std::io::Result<()>>> {
+    let current_dir: PathBuf = match env::current_dir() {
+        Ok(dir) => PathBuf::from(dir),
         Err(_) => panic!("init failed. Current grab current directory."),
     };
+    let target_dir = match target {
+        Some(s) => PathBuf::from(s),
+        None => current_dir.clone(),
+    };
 
-    if !Path::new("./_site").exists().await {
-        fs::create_dir("_site").await?;
+    let cwd = match current_dir.to_str() {
+        Some(s) => s,
+        None => ".",
+    };
+    let curpath = format!("{0}/_site", cwd);
+    if !Path::new(&curpath).exists().await {
+        fs::create_dir("_site").await;
     }
 
-    let mut entries = fs::read_dir(current_dir).await?;
-    while let Some(entry) = entries.next().await {
-        let entry = entry?;
-        let path = entry.path();
-        if let Some(ext) = Path::new(&path).extension() {
-            match ext.to_str() {
-                Some(".html") | Some("html") => build::html(&path, &entry).await.unwrap(),
-                Some(".md") | Some("md") => build::markdown(&path, &entry).await.unwrap(),
-                _ => (),
+    if let Ok(mut entries) = fs::read_dir(target_dir).await {
+        while let Some(entry) = entries.next().await {
+            if let Ok(entry) = entry {
+                if let Ok(file_type) = entry.file_type().await {
+                    if file_type.is_dir() {
+                        let new_path = &entry.path();
+                        if let Some(np) = new_path.to_str() {
+                            build(Some(np));
+                        }
+                    }
+                }
+        
+                let path = entry.path();
+                if let Some(ext) = Path::new(&path).extension() {
+                    match ext.to_str() {
+                        Some(".html") | Some("html") => build::html(&path, &entry).await.unwrap(),
+                        Some(".md") | Some("md") => build::markdown(&path, &entry).await.unwrap(),
+                        _ => (),
+                    }
+                }
             }
+            
         }
-        // let metadata = entry.metadata()?;
     }
-
-    // for entry in fs::read_dir(current_dir).await {
-    //     let entry = entry;
-    //     let path = entry.path();
-    //     // let metadata = entry.metadata()?;
-    //     if let Some(ext) = Path::new(&path).extension() {
-    //         match ext.to_str() {
-    //             Some(".html") | Some("html") => build::html(&path).await.unwrap(),
-    //             Some(".md") | Some("md") => build::markdown(&path).await.unwrap(),
-    //             _ => (),
-    //         }
-    //     }
-    // }
-
-    Ok(())
+    
+    Future<Output = Ok(())>
 }
