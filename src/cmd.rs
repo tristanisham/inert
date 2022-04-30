@@ -30,7 +30,32 @@ pub fn version() {
 ///
 /// *standard default dir is* `_site`
 pub async fn build<'a>(target: Option<&str>) -> Result<(), String> {
-    async_builder(target).await;
+    let current_dir: PathBuf = match env::current_dir() {
+        Ok(dir) => PathBuf::from(dir),
+        Err(_) => panic!("init failed. Current grab current directory."),
+    };
+    let target_dir = match target {
+        Some(s) => {
+            println!("target : {s}");
+            PathBuf::from(s)
+        }
+        None => current_dir.clone(),
+    };
+    let cwd = match current_dir.to_str() {
+        Some(s) => s,
+        None => ".",
+    };
+
+    println!("{cwd}");
+
+    let curpath = format!("{0}/_site", cwd);
+    if !Path::new(&curpath).exists().await {
+        fs::create_dir("_site").await.unwrap();
+    }
+
+    if let Some(t) = current_dir.join(target_dir).to_str() {
+        async_builder(t).await;
+    }
     Ok(())
 }
 /// `build_holder` is a static container function that facilitates the recursive nature of
@@ -38,32 +63,17 @@ pub async fn build<'a>(target: Option<&str>) -> Result<(), String> {
 
 /// async_builder recursivily scans through the child documents of the provided path, calling itself if it detects a directory
 /// this design is to facilitate a 1:1 directory structure copying into the **default** site directory.
-fn async_builder<'a>(target: Option<&str>) -> BoxFuture<()> {
+fn async_builder<'a>(target: &str) -> BoxFuture<()> {
     async move {
-        let current_dir: PathBuf = match env::current_dir() {
-            Ok(dir) => PathBuf::from(dir),
-            Err(_) => panic!("init failed. Current grab current directory."),
-        };
-        let target_dir = match target {
-            Some(s) => PathBuf::from(s),
-            None => current_dir.clone(),
-        };
-        let cwd = match current_dir.to_str() {
-            Some(s) => s,
-            None => ".",
-        };
-        let curpath = format!("{0}/_site", cwd);
-        if !Path::new(&curpath).exists().await {
-            fs::create_dir("_site").await.unwrap();
-        }
-        if let Ok(mut entries) = fs::read_dir(target_dir).await {
+        if let Ok(mut entries) = fs::read_dir(target).await {
             while let Some(entry) = entries.next().await {
                 if let Ok(entry) = entry {
                     if let Ok(file_type) = entry.file_type().await {
                         if file_type.is_dir() {
                             let new_path = &entry.path();
                             if let Some(np) = new_path.to_str() {
-                                async_builder(Some(np)).await
+                                println!("{np}");
+                                async_builder(np).await
                             }
                         }
                     }
