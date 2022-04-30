@@ -1,7 +1,7 @@
-use async_std::{task};
-use std::{env};
+use async_std::task;
+use std::env;
 
-mod build;
+mod builder;
 mod cmd;
 
 fn main() {
@@ -12,10 +12,10 @@ fn main() {
                 // "init" => cmd::init().unwrap(),
                 "build" => {
                     if args.len() >= 3 {
-                        task::block_on(cmd::build(Some(&args[2])));
+                        task::block_on(cmd::build(Some(&args[2]))).unwrap();
                     }
-                    task::block_on(cmd::build(None));
-                },
+                    task::block_on(cmd::build(None)).unwrap();
+                }
                 "--help" => cmd::help(),
                 "-v" => cmd::version(),
                 _ => cmd::help(),
@@ -23,4 +23,3 @@ fn main() {
         }
     }
 }
- 
