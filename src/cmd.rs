@@ -33,13 +33,14 @@ pub async fn build() -> std::io::Result<()> {
         Err(_) => panic!("init failed. Current grab current directory."),
     };
 
-    fs::create_dir("_site").await?;
+    if !Path::new("./_site").exists().await {
+        fs::create_dir("_site").await?;
+    }
 
     let mut entries = fs::read_dir(current_dir).await?;
     while let Some(entry) = entries.next().await {
         let entry = entry?;
         let path = entry.path();
-       
         if let Some(ext) = Path::new(&path).extension() {
             match ext.to_str() {
                 Some(".html") | Some("html") => build::html(&path, &entry).await.unwrap(),
