@@ -5,6 +5,10 @@ pub(super) async fn write_string_to_file(
     name: &str,
     extension: &str,
 ) -> Result<(), String> {
+    // Checks if default dir is created, and if not creates it.
+    if !Path::new("./_site/").exists().await {
+        fs::create_dir_all("_site").await.unwrap();
+    }
     let (_path, file_name) = get_workable_path(name).await;
     let path = format!("./_site/{0}.{1}", file_name, extension);
     if Path::new(&path).exists().await {
