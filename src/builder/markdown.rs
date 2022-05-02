@@ -17,6 +17,10 @@ async fn parse_markdown(path: &Path) -> Result<String, &str> {
     if let Ok(raw) = fs::read_to_string(path).await {
         let mut options = Options::empty();
         options.insert(Options::ENABLE_STRIKETHROUGH);
+        options.insert(Options::ENABLE_TABLES);
+        options.insert(Options::ENABLE_FOOTNOTES);
+        options.insert(Options::ENABLE_TASKLISTS);
+        options.insert(Options::ENABLE_HEADING_ATTRIBUTES);
         let parser = Parser::new_ext(&raw, options);
         html::push_html(&mut html_output, parser);
     }
