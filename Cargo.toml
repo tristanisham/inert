@@ -5,6 +5,11 @@ edition = "2021"
 license = "MIT"
 repository = "https://github.com/tristanisham/inert"
 readme = "readme.md"
+description = "A static site generator built in Rust with a focus on quick development time, approachable documentation, and SPEED."
+license-file = "LICENSE"
+authors = ["Tristan Isham <tristan@isham.co>"]
+keywords = ["static site", "html", "static site generator", "binary", "fast", "async"]
+categories = ["command-line-utilities", "network-programming", "template-engine", "web-programming", "wasm"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
