@@ -2,6 +2,9 @@
 name = "inert"
 version = "0.0.1"
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/tristanisham/inert"
+readme = "readme.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -14,6 +17,6 @@ serde_json = "1.0.80"
 reqwest = { version = "0.11", features = ["json"] }
 actix-web = "4.0.1"
 actix-files = "0.6.0"
-env_logger = "0.9.0"
+# env_logger = "0.9.0"
 termion = "*"
 tokio = { version = "1", features = ["full"] }
