@@ -8,7 +8,7 @@ readme = "readme.md"
 description = "A static site generator built in Rust with a focus on quick development time, approachable documentation, and SPEED."
 license-file = "LICENSE"
 authors = ["Tristan Isham <tristan@isham.co>"]
-keywords = ["static_site_generator", "html", "JavaScript", "tailwind", "async"]
+keywords = ["static_site_gen", "html", "JavaScript", "tailwind", "async"]
 categories = ["command-line-utilities", "network-programming", "template-engine", "web-programming", "wasm"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
