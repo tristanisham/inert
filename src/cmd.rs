@@ -6,20 +6,6 @@ use futures::future::{BoxFuture, FutureExt};
 use std::env;
 use std::path::PathBuf;
 
-
-
-// pub fn init() -> Result<(), String> {
-//     let current_dir = match env::current_dir() {
-//         Ok(dir) => dir,
-//         Err(_) => panic!("init failed. Current grab current directory."),
-//     };
-//     create_init_files(current_dir)
-// }
-
-// fn create_init_files(_path: PathBuf) -> Result<(), String> {
-//     Ok(())
-// }
-
 /// `help()` prints out the CLI's commands, instructions on how to use each command, and other helpful information
 pub fn help() {
     println!("build, b <target> -> Scans, compiles and assembles your static site from <target> directory files in your default directory (./_site)");
